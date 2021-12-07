@@ -31,6 +31,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     using Position for Position.Info[];
     using Array2D for uint[][];
 
+    uint public override depositDeadline = 2**256-1;
     uint public override immutable lockPeriod;
     uint public override immutable baseLine;
     uint public override immutable managerFee;
@@ -93,6 +94,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     }
 
     function _deposit(uint amount, uint total_assets) internal returns(uint share) {
+        require(block.timestamp <= depositDeadline, "DL");
         if(totalSupply == 0)
             share = amount;
         else
@@ -221,6 +223,12 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
+    function setDepositDeadline(uint deadline) external override onlyController{
+        require(block.timestamp < deadline, "DL");
+        depositDeadline = deadline;
+    }
+
+    /// @inheritdoc IHotPotV3FundManagerActions
     function setPath(
         address distToken,
         bytes memory buy,
@@ -297,6 +305,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
             positions.push();
             poolIndex = pools.length - 1;
         }
+        emit Init(poolIndex, positions[poolIndex].length, amount);
 
         //3、新增头寸
         positions[poolIndex].push(Position.Info({
@@ -356,6 +365,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
             maxSqrtSlippage: maxPIS & 0xffff,
             maxPriceImpact: maxPIS >> 16
         }), sellPath, buyPath);
+        emit Add(poolIndex, positionIndex, amount, collect);
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
@@ -377,6 +387,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
             maxSqrtSlippage: maxPIS & 0xffff,
             maxPriceImpact: maxPIS >> 16
         }), sellPath);
+        emit Sub(poolIndex, positionIndex, proportionX128);
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
@@ -408,6 +419,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
             maxSqrtSlippage: maxPIS & 0xffff,
             maxPriceImpact: maxPIS >> 16
         }), sellPath, buyPath);
+        emit Move(poolIndex, subIndex, addIndex, proportionX128);
     }
 
     /// @inheritdoc IHotPotV3FundState

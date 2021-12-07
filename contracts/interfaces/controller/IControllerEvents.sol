@@ -15,6 +15,9 @@ interface IControllerEvents {
     /// @notice 当调用setGovernance时触发
     event SetGovernance(address indexed account);
 
+    /// @notice 当调用setDepositDeadline时触发
+    event SetDeadline(address indexed fund, uint deadline);
+
     /// @notice 当调用setPath时触发
     event SetPath(address indexed fund, address indexed distToken, bytes path);
 

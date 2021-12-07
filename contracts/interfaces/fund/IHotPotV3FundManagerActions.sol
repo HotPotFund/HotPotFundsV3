@@ -3,6 +3,11 @@ pragma solidity >=0.5.0;
 
 /// @notice 基金经理操作接口定义
 interface IHotPotV3FundManagerActions {
+    /// @notice 设置基金存入截止时间
+    /// @dev This function can only be called by controller 
+    /// @param deadline 最晚存入截止时间
+    function setDepositDeadline(uint deadline) external;
+
     /// @notice 设置代币交易路径
     /// @dev This function can only be called by controller 
     /// @dev 设置路径时不能修改为0地址，且path路径里的token必须验证是否受信任

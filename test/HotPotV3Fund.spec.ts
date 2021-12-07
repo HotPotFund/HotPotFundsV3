@@ -129,6 +129,9 @@ describe('HotPotV3Fund', () => {
                 descriptor:{
                     value: ethers.utils.formatBytes32String(descriptor)
                 },
+                depositDeadline: {
+                  value: constants.MaxUint256
+                },
                 lockPeriod: {
                     value: lockPeriod
                 },
@@ -160,6 +163,26 @@ describe('HotPotV3Fund', () => {
             return {target, caseData};
         }
     ));
+
+    describe('#setDepositDeadline', ()=>{
+        it("1 fail if it's not a action called by controller", async () => {
+            await expect(hotPotFund.connect(manager).setDepositDeadline(Math.round(new Date().getTime() / 1e3 + 12000)))
+            .to.be.revertedWith("OCC");
+        });
+
+        it("1 fail if deadline is expires", async () => {
+            await expect(fixture.controller.connect(manager).setDepositDeadline(hotPotFund.address, Math.round(new Date().getTime() / 1e3 - 1)))
+                .to.be.revertedWith('DL')
+        });
+
+        it("works", async () => {
+            let deadline = Math.round(new Date().getTime() / 1e3 + 12000)
+            let tx = fixture.controller.connect(manager).setDepositDeadline(hotPotFund.address, deadline);
+            await expect(tx).to.not.be.reverted;
+            await snapshotGasCost(tx);
+            expect(await hotPotFund.depositDeadline()).to.eq(deadline);
+        });
+    })
 
     describe('#setPath', ()=>{
         it("1 fail if it's not a action called by controller", async () => {
@@ -259,6 +282,18 @@ describe('HotPotV3Fund', () => {
               INIT_DEPOSIT_AMOUNT
             )).to.be.reverted;
         });
+
+        it('3 fails when deadline is expires', async () => {
+            let deadline = Math.round(new Date().getTime() / 1e3 + 12000)
+            await fixture.controller.connect(manager).setDepositDeadline(hotPotFund.address, deadline)
+            await ethers.provider.send('evm_increaseTime', [deadline])
+            await ethers.provider.send('evm_mine', [])
+
+            await investToken.connect(depositor).approve(hotPotFund.address, constants.MaxUint256)
+            await expect(hotPotFund.connect(depositor).deposit(
+              INIT_DEPOSIT_AMOUNT
+            )).to.be.revertedWith('DL')
+        })
 
         it("is payable ETH if fund token is WET9", async () =>{
             if(investToken.address == fixture.weth9.address){

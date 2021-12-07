@@ -218,6 +218,24 @@ describe('HotPotV3FundController', () => {
         });
     })
 
+    describe("#setDepositDeadline", () => {
+        it("fail if it's not a action called by manager", async () => {
+            await expect(fixture.controller.connect(depositor).setDepositDeadline(
+              hotPotFund.address,
+              Math.round(new Date().getTime() / 1e3 + 12000)
+            )).to.be.reverted
+        })
+
+        it("works if it's a action called by manager", async () => {
+            let deadline = Math.round(new Date().getTime() / 1e3 + 12000)
+            await expect(fixture.controller.connect(manager).setDepositDeadline(
+              hotPotFund.address,
+              deadline
+            )).to.emit(fixture.controller, 'SetDeadline')
+              .withArgs(hotPotFund.address, deadline)
+        })
+    })
+
     describe('#setPath', ()=>{
         beforeEach("setVerifiedToken", async()=>{
             await fixture.controller.connect(governance).setVerifiedToken(token0.address, true);

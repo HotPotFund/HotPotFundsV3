@@ -5,6 +5,12 @@ import '../fund/IHotPotV3FundManagerActions.sol';
 
 /// @title 控制器合约基金经理操作接口定义
 interface IManagerActions {
+    /// @notice 设置基金存入截止时间
+    /// @dev This function can only be called by manager 
+    /// @param fund 基金地址
+    /// @param deadline 最晚存入截止时间
+    function setDepositDeadline(address fund, uint deadline) external;
+
     /// @notice 设置代币交易路径
     /// @dev This function can only be called by manager 
     /// @dev 设置路径时不能修改为0地址，且path路径里的token必须验证是否受信任

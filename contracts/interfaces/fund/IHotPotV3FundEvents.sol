@@ -8,4 +8,16 @@ interface IHotPotV3FundEvents {
 
     /// @notice 当取走基金token时，会触发该事件
     event Withdraw(address indexed owner, uint amount, uint share);
+
+    /// @notice 当调用init时，会触发该事件
+    event Init(uint poolIndex, uint positionIndex, uint amount);
+
+    /// @notice 当调用add时，会触发该事件
+    event Add(uint poolIndex, uint positionIndex, uint amount, bool collect);
+
+    /// @notice 当调用sub时，会触发该事件
+    event Sub(uint poolIndex, uint positionIndex, uint proportionX128);
+
+    /// @notice 当调用move时，会触发该事件
+    event Move(uint poolIndex, uint subIndex, uint addIndex, uint proportionX128);
 }

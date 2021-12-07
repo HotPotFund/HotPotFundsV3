@@ -24,6 +24,9 @@ interface IHotPotV3FundState {
     /// @notice 基金经理收费比例
     function managerFee() external view returns (uint);
 
+    /// @notice 基金存入截止时间
+    function depositDeadline() external view returns (uint);
+
     /// @notice 获取最新存入时间
     /// @param account 目标地址
     /// @return 最新存入时间
