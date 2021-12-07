@@ -9,6 +9,12 @@ interface IHotPotV3FundEvents {
     /// @notice 当取走基金token时，会触发该事件
     event Withdraw(address indexed owner, uint amount, uint share);
 
+    /// @notice 当调用setDepositDeadline时触发
+    event SetDeadline(uint deadline);
+
+    /// @notice 当调用setPath时触发
+    event SetPath(address indexed distToken, bytes path);
+
     /// @notice 当调用init时，会触发该事件
     event Init(uint poolIndex, uint positionIndex, uint amount);
 

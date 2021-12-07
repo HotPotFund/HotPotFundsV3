@@ -231,8 +231,8 @@ describe('HotPotV3FundController', () => {
             await expect(fixture.controller.connect(manager).setDepositDeadline(
               hotPotFund.address,
               deadline
-            )).to.emit(fixture.controller, 'SetDeadline')
-              .withArgs(hotPotFund.address, deadline)
+            )).to.emit(hotPotFund, 'SetDeadline')
+              .withArgs(deadline)
         })
     })
 
@@ -287,8 +287,8 @@ describe('HotPotV3FundController', () => {
               token0.address,
               path
             ))
-            .to.emit(fixture.controller, "SetPath")
-            .withArgs(hotPotFund.address, token0.address, path);
+            .to.emit(hotPotFund, "SetPath")
+            .withArgs(token0.address, path);
 
             //multiPath
             path = encodePath([investToken.address, token1.address, token0.address], [FeeAmount.MEDIUM, FeeAmount.MEDIUM]);
@@ -297,8 +297,8 @@ describe('HotPotV3FundController', () => {
               token0.address,
               path
             ))
-            .to.emit(fixture.controller, "SetPath")
-            .withArgs(hotPotFund.address, token0.address, path);
+            .to.emit(hotPotFund, "SetPath")
+            .withArgs(token0.address, path);
         });
 
         it("fails if pool isn't exits", async () =>{

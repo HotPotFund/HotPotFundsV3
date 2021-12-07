@@ -226,6 +226,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     function setDepositDeadline(uint deadline) external override onlyController{
         require(block.timestamp < deadline, "DL");
         depositDeadline = deadline;
+        emit SetDeadline(deadline);
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
@@ -248,6 +249,7 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
         TransferHelper.safeApprove(distToken, uniV3Router, 2**256-1);
         buyPath[distToken] = buy;
         sellPath[distToken] = sell;
+        emit SetPath(distToken, buy);
     }
 
     /// @inheritdoc IUniswapV3MintCallback
@@ -305,7 +307,6 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
             positions.push();
             poolIndex = pools.length - 1;
         }
-        emit Init(poolIndex, positions[poolIndex].length, amount);
 
         //3、新增头寸
         positions[poolIndex].push(Position.Info({
@@ -332,6 +333,8 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
                 maxPriceImpact: maxPIS >> 16
             }), sellPath, buyPath);
         }
+
+        emit Init(poolIndex, positions[poolIndex].length - 1, amount);
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
