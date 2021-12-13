@@ -897,7 +897,7 @@ describe('HotPotV3Fund', () => {
               0, 1, BigNumber.from(50).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 1, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [0][1] 50%：");
             position = await hotPotFund.positions(0, 1)
@@ -908,7 +908,7 @@ describe('HotPotV3Fund', () => {
               1, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(1, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [1][0] 50%：");
             position = await hotPotFund.positions(1, 0)
@@ -919,7 +919,7 @@ describe('HotPotV3Fund', () => {
               1, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(1, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [1][0] 100%：");
             position = await hotPotFund.positions(1, 0)

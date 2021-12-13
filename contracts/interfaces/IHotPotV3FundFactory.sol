@@ -30,8 +30,11 @@ interface IHotPotV3FundFactory {
     /// @dev a manager+token mapping a fund
     /// @param manager 管理基金的经理地址
     /// @param token 管理的代币
+    /// @param lockPeriod 基金锁定期
+    /// @param baseLine 基金经理收费基线
+    /// @param managerFee 基金记录分成比例
     /// @return fund 基金地址
-    function getFund(address manager, address token) external view returns (address fund);
+    function getFund(address manager, address token, uint lockPeriod, uint baseLine, uint managerFee) external view returns (address fund);
 
     /// @notice Creates a fund for the given manager and token
     /// @param token 管理的token

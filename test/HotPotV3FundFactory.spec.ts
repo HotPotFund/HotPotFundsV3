@@ -66,7 +66,7 @@ describe('HotPotV3FundFactory', () => {
     it('works if token is verified', async () => {
       const token = fixture.tokens[0]
 
-      const fundBefore = await fixture.factory.getFund(wallet.address, token.address)
+      const fundBefore = await fixture.factory.getFund(wallet.address, token.address, lockPeriod, baseLine, managerFee)
       expect(fundBefore).to.eq(constants.AddressZero)
 
       expect(await fixture.controller.verifiedToken(token.address)).to.eq(true)
@@ -75,14 +75,14 @@ describe('HotPotV3FundFactory', () => {
         .to.emit(fixture.factory, 'FundCreated')
         .withArgs(wallet.address, token.address, expectedAddress)
 
-      const fundAfter = await fixture.factory.getFund(wallet.address, token.address)
+      const fundAfter = await fixture.factory.getFund(wallet.address, token.address, lockPeriod, baseLine, managerFee)
       expect(fundAfter).to.not.eq(constants.AddressZero)
     })
 
     it('fails if token is not verified', async () => {
       const token = fixture.tokens[3]
 
-      expect(await fixture.factory.getFund(wallet.address, token.address)).to.eq(constants.AddressZero)
+      expect(await fixture.factory.getFund(wallet.address, token.address, lockPeriod, baseLine, managerFee)).to.eq(constants.AddressZero)
       expect(await fixture.controller.verifiedToken(token.address)).to.eq(false)
 
       await expect(fixture.factory.createFund(token.address, ethers.utils.formatBytes32String('abc'), lockPeriod, baseLine, managerFee)).to.be.reverted

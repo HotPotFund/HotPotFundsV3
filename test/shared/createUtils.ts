@@ -55,7 +55,7 @@ export async function createFund(manager: Wallet,
                                  managerFee: number,
                                  hotPotFactory: IHotPotV3FundFactory) {
   await hotPotFactory.connect(manager).createFund(token.address, utils.formatBytes32String(depositor), lockPeriod, baseLine, managerFee);
-  const fundAddress = await hotPotFactory.getFund(manager.address, token.address);
+  const fundAddress = await hotPotFactory.getFund(manager.address, token.address, lockPeriod, baseLine, managerFee);
   return new Contract(fundAddress, HotPotV3FundAbi.abi, hotPotFactory.provider) as IHotPotV3Fund;
 }
 
