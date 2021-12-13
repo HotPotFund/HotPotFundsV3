@@ -16,7 +16,7 @@ interface IHotPotV3FundEvents {
     event SetDeadline(uint deadline);
 
     /// @notice 当调用setPath时触发
-    event SetPath(address indexed distToken, bytes path);
+    event SetPath(address distToken, bytes path);
 
     /// @notice 当调用init时，会触发该事件
     event Init(uint poolIndex, uint positionIndex, uint amount);

@@ -64,10 +64,10 @@ contract HotPotV3FundController is IHotPotV3FundController, Multicall {
     }
 
     /// @inheritdoc IGovernanceActions
-    function setHarvestPath(address token, bytes memory path) external override onlyGovernance {
+    function setHarvestPath(address token, bytes calldata path) external override onlyGovernance {
         bytes memory _path = path;
         while (true) {
-            (address tokenIn, address tokenOut, uint24 fee) = path.decodeFirstPool();
+            (address tokenIn, address tokenOut, uint24 fee) = _path.decodeFirstPool();
 
             // pool is exist
             address pool = IUniswapV3Factory(uniV3Factory).getPool(tokenIn, tokenOut, fee);
@@ -76,16 +76,16 @@ contract HotPotV3FundController is IHotPotV3FundController, Multicall {
             (,,,uint16 observationCardinality,,,) = IUniswapV3Pool(pool).slot0();
             require(observationCardinality >= 2, "OC");
 
-            if (path.hasMultiplePools()) {
-                path = path.skipToken();
+            if (_path.hasMultiplePools()) {
+                _path = _path.skipToken();
             } else {
                 //最后一个交易对：输入WETH9, 输出hotpot
                 require(tokenIn == WETH9 && tokenOut == hotpot, "IOT");
                 break;
             }
         }
-        harvestPath[token] = _path;
-        emit SetHarvestPath(token, _path);
+        harvestPath[token] = path;
+        emit SetHarvestPath(token, path);
     }
 
     /// @inheritdoc IGovernanceActions

@@ -235,8 +235,8 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     /// @inheritdoc IHotPotV3FundManagerActions
     function setPath(
         address distToken,
-        bytes memory buy,
-        bytes memory sell
+        bytes calldata buy,
+        bytes calldata sell
     ) external override onlyController{
         // 要修改sellPath, 需要先清空相关pool头寸资产
         if(sellPath[distToken].length > 0){

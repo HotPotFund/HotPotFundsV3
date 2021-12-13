@@ -21,8 +21,8 @@ interface IHotPotV3FundManagerActions {
     /// @param sell 销售路径(distToken->本币)
     function setPath(
         address distToken, 
-        bytes memory buy,
-        bytes memory sell
+        bytes calldata buy,
+        bytes calldata sell
     ) external;
 
     /// @notice 初始化头寸, 允许投资额为0.

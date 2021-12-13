@@ -18,7 +18,7 @@ interface IGovernanceActions {
     /// @dev This function can only be called by governance
     /// @param token 目标代币
     /// @param path 路径
-    function setHarvestPath(address token, bytes memory path) external;
+    function setHarvestPath(address token, bytes calldata path) external;
 
     /// @notice 设置swap时最大滑点，取值范围为 0-1e4, 计算公式为：MaxSwapSlippage = (1 - (sqrtSlippage/1e4)^2) * 100%
     ///         如设置最大滑点 0.5%, 则 sqrtSlippage 应设置为9974，此时 MaxSwapSlippage = (1-(9974/1e4)^2)*100% = 0.5% 
