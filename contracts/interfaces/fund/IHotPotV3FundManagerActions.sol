@@ -3,6 +3,11 @@ pragma solidity >=0.5.0;
 
 /// @notice 基金经理操作接口定义
 interface IHotPotV3FundManagerActions {
+    /// @notice 设置基金描述信息
+    /// @dev This function can only be called by controller 
+    /// @param _descriptor 描述信息
+    function setDescriptor(bytes calldata _descriptor) external;
+
     /// @notice 设置基金存入截止时间
     /// @dev This function can only be called by controller 
     /// @param deadline 最晚存入截止时间

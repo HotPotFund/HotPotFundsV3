@@ -5,6 +5,11 @@ import '../fund/IHotPotV3FundManagerActions.sol';
 
 /// @title 控制器合约基金经理操作接口定义
 interface IManagerActions {
+    /// @notice 设置基金描述信息
+    /// @dev This function can only be called by manager 
+    /// @param _descriptor 描述信息
+    function setDescriptor(address fund, bytes calldata _descriptor) external;
+
     /// @notice 设置基金存入截止时间
     /// @dev This function can only be called by manager 
     /// @param fund 基金地址

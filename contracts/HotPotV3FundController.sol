@@ -135,6 +135,11 @@ contract HotPotV3FundController is IHotPotV3FundController, Multicall {
     }
 
     /// @inheritdoc IManagerActions
+    function setDescriptor(address fund, bytes calldata _descriptor) external override onlyManager(fund) {
+        return IHotPotV3Fund(fund).setDescriptor(_descriptor);
+    }
+
+    /// @inheritdoc IManagerActions
     function setDepositDeadline(address fund, uint deadline) external override onlyManager(fund) {
         return IHotPotV3Fund(fund).setDepositDeadline(deadline);
     }

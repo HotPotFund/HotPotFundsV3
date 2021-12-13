@@ -219,6 +219,13 @@ contract HotPotV3Fund is HotPotV3FundERC20, IHotPotV3Fund, IUniswapV3MintCallbac
     }
 
     /// @inheritdoc IHotPotV3FundManagerActions
+    function setDescriptor(bytes calldata _descriptor) external override onlyController{
+        require(_descriptor.length > 0, "DES");
+        descriptor = _descriptor;
+        emit SetDescriptor(_descriptor);
+    }
+
+    /// @inheritdoc IHotPotV3FundManagerActions
     function setDepositDeadline(uint deadline) external override onlyController{
         require(block.timestamp < deadline, "DL");
         depositDeadline = deadline;

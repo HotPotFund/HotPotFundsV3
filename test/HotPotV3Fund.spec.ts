@@ -54,7 +54,6 @@ describe('HotPotV3Fund', () => {
     let t0T1Pool: IUniswapV3Pool;
 
     let INIT_DEPOSIT_AMOUNT: BigNumber;
-    let toleranceTime = 0;
 
     const hotPotFundFixture: Fixture<CompleteFixture> = async (wallets, provider) => {
         const fixture = await completeFixture(wallets, provider, governance)
@@ -164,13 +163,27 @@ describe('HotPotV3Fund', () => {
         }
     ));
 
+    describe('#setDescriptor', ()=>{
+        it("1 fail if length == 0", async () => {
+          await expect(fixture.controller.connect(manager).setDescriptor(hotPotFund.address, "0x")).to.be.revertedWith('DES')
+        });
+
+        it("works", async () => {
+            let descriptor = ethers.utils.formatBytes32String("abcd");
+            let tx = fixture.controller.connect(manager).setDescriptor(hotPotFund.address, descriptor);
+            await expect(tx).to.emit(hotPotFund, 'SetDescriptor').withArgs(descriptor);
+            await snapshotGasCost(tx);
+            expect(await hotPotFund.descriptor()).to.eq(descriptor);
+        });
+  })
+  
     describe('#setDepositDeadline', ()=>{
         it("1 fail if it's not a action called by controller", async () => {
             await expect(hotPotFund.connect(manager).setDepositDeadline(Math.round(new Date().getTime() / 1e3 + 12000)))
             .to.be.revertedWith("OCC");
         });
 
-        it("1 fail if deadline is expires", async () => {
+        it("2 fail if deadline is expires", async () => {
             await expect(fixture.controller.connect(manager).setDepositDeadline(hotPotFund.address, Math.round(new Date().getTime() / 1e3 - 1)))
                 .to.be.revertedWith('DL')
         });
@@ -178,7 +191,7 @@ describe('HotPotV3Fund', () => {
         it("works", async () => {
             let deadline = Math.round(new Date().getTime() / 1e3 + 12000)
             let tx = fixture.controller.connect(manager).setDepositDeadline(hotPotFund.address, deadline);
-            await expect(tx).to.not.be.reverted;
+            await expect(tx).to.emit(hotPotFund, 'SetDeadline').withArgs(deadline);
             await snapshotGasCost(tx);
             expect(await hotPotFund.depositDeadline()).to.eq(deadline);
         });
@@ -204,7 +217,7 @@ describe('HotPotV3Fund', () => {
               token0.address,
               buyPath
             );
-            await expect(tx).to.not.be.reverted;
+            await expect(tx).to.emit(hotPotFund, 'SetPath').withArgs(token0.address, buyPath);
             await snapshotGasCost(tx);//gas
             await showAssetStatus("setPath：");
             expect(await hotPotFund.buyPath(token0.address)).to.eq(buyPath);
@@ -555,7 +568,7 @@ describe('HotPotV3Fund', () => {
                   tickLower, tickUpper, 0,
                   Math.round(new Date().getTime() / 1e3 + 12000)
                 );
-                await expect(tx).to.not.be.reverted
+                await expect(tx).to.emit(hotPotFund, 'Init').withArgs(1, 0, 0);
                 await snapshotGasCost(tx);
                 await showAssetStatus("init [1][0]：");
                 expect(await hotPotFund.poolsLength()).to.eq(2);
@@ -577,7 +590,7 @@ describe('HotPotV3Fund', () => {
                   INIT_DEPOSIT_AMOUNT.div(2),
                   Math.round(new Date().getTime() / 1e3 + 12000)
                 );
-                await expect(tx).to.not.be.reverted
+                await expect(tx).to.emit(hotPotFund, 'Init').withArgs(2, 0, INIT_DEPOSIT_AMOUNT.div(2));
                 await snapshotGasCost(tx);
                 await showAssetStatus("init [2][0]：");
                 expect(await hotPotFund.poolsLength()).to.eq(3);
@@ -725,7 +738,7 @@ describe('HotPotV3Fund', () => {
               Math.round(new Date().getTime() / 1e3 + 12000),
               overrides
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Add').withArgs(0, 0, INIT_DEPOSIT_AMOUNT.div(4), false);
             await snapshotGasCost(tx);
             await showAssetStatus("add [0][0] 1/4：");
             let funds = await showAddLavePercent(INIT_DEPOSIT_AMOUNT.div(4), INIT_DEPOSIT_AMOUNT);
@@ -736,7 +749,7 @@ describe('HotPotV3Fund', () => {
               Math.round(new Date().getTime() / 1e3 + 12000),
               overrides
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Add').withArgs(0, 1, INIT_DEPOSIT_AMOUNT.div(4), false);
             await snapshotGasCost(tx);
             await showAssetStatus("add [0][1] 1/4：");
             funds = await showAddLavePercent(INIT_DEPOSIT_AMOUNT.div(4), funds);
@@ -747,7 +760,7 @@ describe('HotPotV3Fund', () => {
               Math.round(new Date().getTime() / 1e3 + 12000),
               overrides
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Add').withArgs(1, 0, INIT_DEPOSIT_AMOUNT.div(4), false);
             await snapshotGasCost(tx);
             await showAssetStatus("add [1][0] 1/4：");
             funds = await showAddLavePercent(INIT_DEPOSIT_AMOUNT.div(4), funds);
@@ -758,7 +771,7 @@ describe('HotPotV3Fund', () => {
               Math.round(new Date().getTime() / 1e3 + 12000),
               overrides
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Add').withArgs(2, 0, INIT_DEPOSIT_AMOUNT.div(4), false);
             await snapshotGasCost(tx);
             await showAssetStatus("add [2][0] 1/4：");
             funds = await showAddLavePercent(INIT_DEPOSIT_AMOUNT.div(4), funds);
@@ -873,7 +886,7 @@ describe('HotPotV3Fund', () => {
               0, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [0][0] 100%：");
             let position = await hotPotFund.positions(0, 0)
@@ -884,7 +897,7 @@ describe('HotPotV3Fund', () => {
               0, 1, BigNumber.from(50).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [0][1] 50%：");
             position = await hotPotFund.positions(0, 1)
@@ -895,7 +908,7 @@ describe('HotPotV3Fund', () => {
               1, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [1][0] 50%：");
             position = await hotPotFund.positions(1, 0)
@@ -906,7 +919,7 @@ describe('HotPotV3Fund', () => {
               1, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Sub').withArgs(0, 0, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("sub [1][0] 100%：");
             position = await hotPotFund.positions(1, 0)
@@ -1024,7 +1037,7 @@ describe('HotPotV3Fund', () => {
               0, 0, 1, BigNumber.from(100).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Move').withArgs(0, 0, 1, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("move 100% [0][0] to [0][1]");
             expect((await hotPotFund.positions(0, 0)).isEmpty).to.eq(true);
@@ -1036,7 +1049,7 @@ describe('HotPotV3Fund', () => {
               1, 0, 1, BigNumber.from(50).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Move').withArgs(1, 0, 1, BigNumber.from(50).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("move 50% [1][0] to [1][1]：");
             expect((await hotPotFund.positions(1, 0)).isEmpty).to.eq(false);
@@ -1048,7 +1061,7 @@ describe('HotPotV3Fund', () => {
               1, 0, 1, BigNumber.from(100).mul(BigNumber.from(2).pow(128)),
               Math.round(new Date().getTime() / 1e3 + 12000)
             );
-            await expect(tx).to.not.be.reverted
+            await expect(tx).to.emit(hotPotFund, 'Move').withArgs(1, 0, 1, BigNumber.from(100).mul(BigNumber.from(2).pow(128)));
             await snapshotGasCost(tx);
             await showAssetStatus("move 100% [1][0] to [1][1]：");
             expect((await hotPotFund.positions(1, 0)).isEmpty).to.eq(true);
