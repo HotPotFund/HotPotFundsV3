@@ -517,3 +517,48 @@ export async function calExpectedWithdrawAmount(removeShare: BigNumber,
   // console.log('withdraw:', { amount, manager_fee, fee, investment })
   return { amount, manager_fee, fee, investment }
 }
+
+
+export async function getAmountsForLiquidity(
+  sqrtRatioX96: BigNumber,
+  sqrtRatioAX96: BigNumber,
+  sqrtRatioBX96: BigNumber,
+  liquidity: BigNumber,
+) {
+  let amount0: BigNumber = BigNumber.from(0);
+  let amount1: BigNumber = BigNumber.from(0);
+
+  if (sqrtRatioAX96.gt(sqrtRatioBX96)) [sqrtRatioAX96, sqrtRatioBX96] = [sqrtRatioBX96, sqrtRatioAX96];
+
+  if (sqrtRatioX96.lte(sqrtRatioAX96)) {
+    amount0 = getAmount0ForLiquidity(sqrtRatioAX96, sqrtRatioBX96, liquidity);
+  } else if (sqrtRatioX96.lt(sqrtRatioBX96)) {
+    amount0 = getAmount0ForLiquidity(sqrtRatioX96, sqrtRatioBX96, liquidity);
+    amount1 = getAmount1ForLiquidity(sqrtRatioAX96, sqrtRatioX96, liquidity);
+  } else {
+    amount1 = getAmount1ForLiquidity(sqrtRatioAX96, sqrtRatioBX96, liquidity);
+  }
+
+  return { amount0, amount1 };
+}
+
+function getAmount0ForLiquidity(
+  sqrtRatioAX96: BigNumber,
+  sqrtRatioBX96: BigNumber,
+  liquidity: BigNumber
+) {
+  if (sqrtRatioAX96.gt(sqrtRatioBX96)) [sqrtRatioAX96, sqrtRatioBX96] = [sqrtRatioBX96, sqrtRatioAX96];
+  // lp * (2**96) * (sqrtRatioBX96-sqrtRatioAX96)/sqrtRatioBX96/sqrtRatioAX96
+  return liquidity.mul(BigNumber.from(2).pow(96)).mul(sqrtRatioBX96.sub(sqrtRatioAX96)).div(sqrtRatioBX96).div(sqrtRatioAX96);
+}
+
+
+function getAmount1ForLiquidity(
+  sqrtRatioAX96: BigNumber,
+  sqrtRatioBX96: BigNumber,
+  liquidity: BigNumber
+) {
+  if (sqrtRatioAX96.gt(sqrtRatioBX96)) [sqrtRatioAX96, sqrtRatioBX96] = [sqrtRatioBX96, sqrtRatioAX96];
+  // lp * (sqrtRatioBX96 - sqrtRatioAX96) / 2**96
+  return liquidity.mul(sqrtRatioBX96.sub(sqrtRatioAX96)).div(BigNumber.from(2).pow(96));
+}
