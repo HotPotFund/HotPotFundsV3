@@ -629,14 +629,14 @@ describe('HotPotV3Fund', () => {
               hotPotFund.address,
               token0.address, token1.address, FeeAmount.MEDIUM,
               curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 200,
-              curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 300,
+              curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 202,
               0, deadline
             )).to.not.be.reverted
             // init positions[0][1]: t0+t1
             await expect(fixture.controller.connect(manager).init(
               hotPotFund.address,
               token0.address, token1.address, FeeAmount.MEDIUM,
-              curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 300,
+              curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 202,
               curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 200,
               0, deadline
             )).to.not.be.reverted
@@ -656,14 +656,14 @@ describe('HotPotV3Fund', () => {
               hotPotFund.address,
               tokens[0].address, tokens[1].address, FeeAmount.MEDIUM,
               curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 200,
-              curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 300,
+              curTick + TICK_SPACINGS[FeeAmount.MEDIUM] * 202,
               0, deadline
             )).to.not.be.reverted
             // init positions[1][1]: fund+t0
             await expect(fixture.controller.connect(manager).init(
               hotPotFund.address,
               tokens[0].address, tokens[1].address, FeeAmount.MEDIUM,
-              curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 300,
+              curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 202,
               curTick - TICK_SPACINGS[FeeAmount.MEDIUM] * 200,
               0, deadline
             )).to.not.be.reverted
@@ -1206,10 +1206,13 @@ describe('HotPotV3Fund', () => {
             console.log(`balanceOfShare: ${await hotPotFund.balanceOf(depositor.address)}`)
             console.log(`totalInvestment: ${await hotPotFund.totalInvestment()}`)
             console.log(`investmentOf: ${await hotPotFund.investmentOf(depositor.address)}`)
+            console.log(`tickAtT0T1Pool：${(await t0T1Pool.slot0()).tick}`)
             console.log(`balance0AtT0T1Pool：${await token0.balanceOf(t0T1Pool.address)}`)
             console.log(`balance1AtT0T1Pool：${await token1.balanceOf(t0T1Pool.address)}`)
+            console.log(`tickAtFundT0Pool：${(await fundT0Pool.slot0()).tick}`)
             console.log(`balanceFAtFundT0Pool：${await investToken.balanceOf(fundT0Pool.address)}`)
             console.log(`balance0AtFundT0Pool：${await token0.balanceOf(fundT0Pool.address)}`)
+            console.log(`tickAtFundT1Pool：${(await fundT1Pool.slot0()).tick}`)
             console.log(`balanceFAtFundT1Pool：${await investToken.balanceOf(fundT1Pool.address)}`)
             console.log(`balance1AtFundT1Pool：${await token1.balanceOf(fundT1Pool.address)}`)
             console.groupEnd();
