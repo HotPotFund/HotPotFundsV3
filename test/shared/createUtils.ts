@@ -27,8 +27,10 @@ export async function createUniV3PoolAndInit(miner: Wallet,
   let amount1 = await token1.decimals() == 18 ? INIT_PAIR_LP_AMOUNT_18 : INIT_PAIR_LP_AMOUNT_6;
 
   const sqrtPriceX96 = encodePriceSqrt(amount1, amount0);
-  const tickLower = getMinTick(TICK_SPACINGS[DEFAULT_FEE]);
-  const tickUpper = getMaxTick(TICK_SPACINGS[DEFAULT_FEE]);
+  const tick = await fixture.tickMath.getTickAtSqrtRatio(sqrtPriceX96);
+  const tickSpacing = TICK_SPACINGS[DEFAULT_FEE];
+  const tickLower = Math.floor((tick - 5000) / tickSpacing) * tickSpacing;
+  const tickUpper = Math.floor((tick + 5000) / tickSpacing) * tickSpacing;
 
   await fixture.nft.createAndInitializePoolIfNecessary(
     token0.address, token1.address, FeeAmount.MEDIUM, sqrtPriceX96);

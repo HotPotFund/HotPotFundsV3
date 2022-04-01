@@ -76,9 +76,9 @@ async function completeFixture(wallets: Wallet[],
     // do not use maxu256 to avoid overflowing
     usdtFactory.deploy(constants.MaxUint256.div(1e2), 'USDT-TS', 'USDT', 6),
     erc20Factory.deploy(constants.MaxUint256.div(1e2), 'DAI-TS', 'DAI', 18),
-    erc20Factory.deploy(constants.MaxUint256.div(1e2), 'UNI-TS', 'UNI', 18),
+    erc20Factory.deploy(constants.MaxUint256.div(1e2), 'USDC-TS', 'USDC', 6),
     erc20Factory.deploy(constants.MaxUint256.div(1e2), 'YFI-TS', 'YFI', 18),
-    erc20Factory.deploy(constants.MaxUint256.div(1e2), 'USDC-TS', 'USDC', 6)
+    erc20Factory.deploy(constants.MaxUint256.div(1e2), 'UNI-TS', 'UNI', 18)
   ])) as Array<Contract>
 
   const tokenHotPotFactory = await ethers.getContractFactory('HotPot')

@@ -3,7 +3,6 @@ import { Fixture } from 'ethereum-waffle'
 import { ethers, waffle } from 'hardhat'
 import { expect } from './shared/expect'
 import {
-    encodePriceSqrt,
     expandTo18Decimals,
     expandTo6Decimals,
     getPositionKey,
