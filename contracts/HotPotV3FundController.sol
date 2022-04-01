@@ -117,7 +117,9 @@ contract HotPotV3FundController is IHotPotV3FundController, Multicall {
             amountOutMinimum: 0
         });
         burned = ISwapRouter(uniV3Router).exactInput(args);
-        IHotPot(hotpot).burn(burned);
+        // Notice: The arbitrum and polygon network needs to use the transfer function to handle the burn action.
+        // IHotPot(hotpot).burn(burned);
+        IHotPot(hotpot).transfer(address(0), burned);
         emit Harvest(token, amount, burned);
     }
 

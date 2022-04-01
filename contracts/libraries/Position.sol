@@ -9,6 +9,7 @@ import '@uniswap/v3-core/contracts/libraries/LowGasSafeMath.sol';
 import '@uniswap/v3-periphery/contracts/libraries/LiquidityAmounts.sol';
 import '@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol';
 import "@uniswap/v3-core/contracts/libraries/SqrtPriceMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 library Position {
     using LowGasSafeMath for uint;
@@ -322,24 +323,29 @@ library Position {
         //处理没有添加进LP的token余额，兑换回基金本币
         if(amount0 < params.amount0Max){
             if(swapParams.token0 != params.token){
-                ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
+                try ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
                     path: sellPath[swapParams.token0],
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: params.amount0Max - amount0,
                     amountOutMinimum: 0
-                }));
+                })) {} catch Error(string memory reason) {
+                    // require or revert info
+                    require(keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("AS")), reason);
+                }// others throw
             }
         }
         if(amount1 < params.amount1Max){
             if(swapParams.token1 != params.token){
-                ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
+                try ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
                     path: sellPath[swapParams.token1],
                     recipient: address(this),
                     deadline: block.timestamp,
                     amountIn: params.amount1Max - amount1,
                     amountOutMinimum: 0
-                }));
+                })) {} catch Error(string memory reason) {// require or revert info
+                    require(keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("AS")), reason);
+                }// others throw
             }
         }
 
@@ -439,13 +445,18 @@ library Position {
                     sqrtPriceX96 = PathPrice.verifySlippage(path, params.uniV3Factory, params.maxSqrtSlippage);
                     amountOutMin = getAmountOutMin(sqrtPriceX96, params.maxPriceImpact, amount0);    
                 }
-                amount = ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
+                try ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
                     path: path,
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amount0,
+                    amountIn: IERC20(token0).balanceOf(address(this)),
                     amountOutMinimum: amountOutMin
-                }));
+                })) returns(uint256 val) {
+                    amount = val;
+                } catch Error(string memory reason) {
+                    // require or revert info
+                    require(keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("AS")), reason); 
+                }// others throw
             }
         }
 
@@ -457,13 +468,18 @@ library Position {
                     sqrtPriceX96 = PathPrice.verifySlippage(path, params.uniV3Factory, params.maxSqrtSlippage);
                     amountOutMin = getAmountOutMin(sqrtPriceX96, params.maxPriceImpact, amount1);    
                 }
-                amount = amount.add(ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
+                try ISwapRouter(params.uniV3Router).exactInput(ISwapRouter.ExactInputParams({
                     path: path,
                     recipient: address(this),
                     deadline: block.timestamp,
-                    amountIn: amount1,
+                    amountIn: IERC20(token1).balanceOf(address(this)),
                     amountOutMinimum: amountOutMin
-                })));
+                })) returns(uint256 val) {
+                    amount = amount.add(val);
+                } catch Error(string memory reason) {
+                    // require or revert info
+                    require(keccak256(abi.encodePacked(reason)) == keccak256(abi.encodePacked("AS")), reason);
+                }// others throw
             }
         }
     }
